@@ -21,9 +21,6 @@ def buscar_por_email(db: Session, email: str) -> Cliente | None:
     return db.query(Cliente).filter(Cliente.cliente_email == email).first()
 
 
-def atualizar_status_e_prioridade(db: Session, cliente: Cliente, status: str, prioridade: str) -> Cliente:
+def atualizar_status_e_prioridade(db: Session, cliente: Cliente, status: str, prioridade: str) -> None:
     cliente.status = status
     cliente.prioridade = prioridade
-    db.commit()
-    db.refresh(cliente)
-    return cliente

@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class WebhookPayload(BaseModel):
-    event_id: str
-    card_id: str
+    event_id: str = Field(min_length=1, max_length=255)
+    card_id: str = Field(min_length=1, max_length=255)
     cliente_email: EmailStr
     timestamp: datetime
 

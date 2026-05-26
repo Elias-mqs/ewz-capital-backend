@@ -1,24 +1,20 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from decimal import Decimal
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class ClienteCreate(BaseModel):
-    cliente_nome: str
+    cliente_nome: str = Field(min_length=1, max_length=255)
     cliente_email: EmailStr
-    tipo_solicitacao: str
-    valor_patrimonio: float
+    tipo_solicitacao: str = Field(min_length=1, max_length=255)
+    valor_patrimonio: Decimal = Field(gt=0, decimal_places=2)
 
     @field_validator("cliente_nome", "tipo_solicitacao")
     @classmethod
-    def nao_pode_ser_vazio(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("Campo não pode ser vazio")
-        return v
-
-    @field_validator("valor_patrimonio")
-    @classmethod
-    def patrimonio_positivo(cls, v: float) -> float:
-        if v <= 0:
-            raise ValueError("valor_patrimonio deve ser maior que zero")
+    def normalizar_string(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Campo não pode ser vazio ou conter apenas espaços")
         return v
 
 
@@ -27,7 +23,7 @@ class ClienteResponse(BaseModel):
     cliente_nome: str
     cliente_email: str
     tipo_solicitacao: str
-    valor_patrimonio: float
+    valor_patrimonio: Decimal
     status: str
     prioridade: str | None
 

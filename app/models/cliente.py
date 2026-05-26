@@ -1,6 +1,7 @@
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import DateTime, Float, Integer, String, func
+from sqlalchemy import DateTime, Integer, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -13,7 +14,7 @@ class Cliente(Base):
     cliente_nome: Mapped[str] = mapped_column(String(255), nullable=False)
     cliente_email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     tipo_solicitacao: Mapped[str] = mapped_column(String(255), nullable=False)
-    valor_patrimonio: Mapped[float] = mapped_column(Float, nullable=False)
+    valor_patrimonio: Mapped[Decimal] = mapped_column(Numeric(precision=15, scale=2), nullable=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="Aguardando Análise")
     prioridade: Mapped[str | None] = mapped_column(String(50), nullable=True)
     criado_em: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

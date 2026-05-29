@@ -12,12 +12,32 @@ Desenvolvida com **Python + FastAPI**, banco **PostgreSQL** e orquestração via
 
 ---
 
+## Configuração do ambiente
+
+```bash
+cp .env.example .env
+```
+
+O arquivo `.env.example` já contém os valores padrão compatíveis com o `docker-compose.yml`. Edite o `.env` se quiser usar credenciais diferentes.
+
+| Variável | Descrição |
+|---|---|
+| `POSTGRES_USER` | Usuário do banco PostgreSQL |
+| `POSTGRES_PASSWORD` | Senha do banco PostgreSQL |
+| `POSTGRES_DB` | Nome do banco de dados |
+| `DATABASE_URL` | URL de conexão usada pela aplicação |
+
+---
+
 ## Executando o projeto
 
 ```bash
 # Clone o repositório
 git clone <url-do-repositorio>
 cd ewz-capital-backend
+
+# Copie as variáveis de ambiente
+cp .env.example .env
 
 # Suba os containers (banco + aplicação)
 docker compose up --build
@@ -31,9 +51,20 @@ Documentação interativa (Swagger): `http://localhost:8000/docs`
 
 ## Executando os testes
 
+**Com Docker (recomendado):**
+
 ```bash
 # Com os containers rodando, execute em outro terminal:
 docker compose exec app pytest tests/ -v
+```
+
+**Sem Docker (localmente):**
+
+Os testes usam SQLite em memória e não dependem do PostgreSQL.
+
+```bash
+pip install -r requirements.txt
+pytest tests/ -v
 ```
 
 ---
@@ -68,6 +99,10 @@ curl -X POST http://localhost:8000/clientes \
 }
 ```
 
+**Erros possíveis:**
+- `409 Conflict` — e-mail já cadastrado
+- `422 Unprocessable Entity` — campo obrigatório ausente, e-mail inválido ou `tipo_solicitacao` não permitido
+
 ---
 
 ### POST /webhooks/pipefy/card-updated
@@ -99,7 +134,9 @@ curl -X POST http://localhost:8000/webhooks/pipefy/card-updated \
 - `valor_patrimonio >= 200.000` → `prioridade_alta`
 - `valor_patrimonio < 200.000` → `prioridade_normal`
 
-**Idempotência:** enviar o mesmo `event_id` duas vezes retorna `409 Conflict`.
+**Erros possíveis:**
+- `404 Not Found` — nenhum cliente encontrado com o `cliente_email` informado
+- `409 Conflict` — `event_id` duplicado ou cliente já processado anteriormente
 
 ---
 
@@ -124,7 +161,8 @@ ewz-capital-backend/
 ├── tests/
 ├── docker-compose.yml
 ├── Dockerfile
-└── .env
+├── .env.example
+└── .env        # criado localmente a partir do .env.example (não versionado)
 ```
 
 ---
